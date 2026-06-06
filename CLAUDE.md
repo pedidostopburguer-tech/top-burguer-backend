@@ -88,11 +88,17 @@ php artisan config:clear && php artisan cache:clear
 
 ---
 
-## O que NÃO fazer
+## Autenticação — Sanctum (armadilhas conhecidas)
 
-- `dd()`, `dump()` ou `var_dump()` em código commitado
-- Lógica de negócio em Controller, Model ou FormRequest
-- Acesso a `request()` dentro de Service
-- Migration sem método `down()`
-- Filtrar `store_id` manualmente em queries de Models com `BelongsToTenant`
-- Expor `store_id` na resposta da API pública
+**Configuração obrigatória — não alterar sem entender o motivo:**
+
+```php
+// config/auth.php
+'defaults' => ['guard' => 'web', 'passwords' => 'users'],
+// SEM guard 'api' — auth:sanctum gerencia o próprio guard
+```
+
+```php
+// config/sanctum.php
+'guard' => ['web'],
+// N

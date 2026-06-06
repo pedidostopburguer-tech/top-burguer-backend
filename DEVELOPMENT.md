@@ -395,7 +395,59 @@ class ProductFactory extends Factory
 
 ---
 
-## 11. Git Flow
+## 11. Autenticação & RBAC
+
+### Sanctum — configuração crítica
+
+O projeto usa `auth:sanctum` em rotas protegidas. A configuração abaixo **não deve ser alterada**:
+
+```php
+// config/auth.php — guard padrão deve ser 'web', nunca 'api'
+'defaults' => ['guard' => 'web', 'passwords' => 'users'],
+// Sem guard 'api' — causaria loop infinito com driver:sanctum
+// ou busca de coluna api_token inexistente com driver:token
+
+// config/sanctum.php — guard deve ser ['web']
+'guard' => ['web'],
+```
+
+### Rotas protegidas
+
+```php
+// Pública (com throttle)
+Route::middleware('throttle:6,1')->post('login', [AuthController::class, 'login']);
+
+// Autenticada
+Route::middleware('auth:sanctum')->get('me', [AuthController::class, 'me']);
+
+// RBAC por papel (qualquer tenant)
+Route::middleware(['auth:sanctum', 'role:store_owner,store_manager'])->...;
+
+// RBAC por papel + tenant (verifica store_id do usuário)
+Route::middleware(['auth:sanctum', 'tenant', 'tenant.role:store_owner'])->...;
+```
+
+### ValidationException com status customizado
+
+Para retornar 401/403 em vez do padrão 422:
+
+```php
+throw ValidationException::withMessages(['email' => ['Credenciais inválidas.']])->status(401);
+```
+
+### Testes com Sanctum
+
+```php
+// Autenticar via Sanctum nos testes (não usar Bearer token manualmente)
+Sanctum::actingAs($user);
+
+// Desabilitar throttle nos testes (array cache persiste entre testes)
+// TestCase.php já faz isso via $this->withoutMiddleware(ThrottleRequests::class)
+```
+
+---
+
+## 12. Git Flow
 
 ```
 main          ← produção (deploy automático)
@@ -496,111 +548,4 @@ Todas as respostas seguem o mesmo envelope:
     }
 }
 
-// Erro de negócio (400/422)
-{
-    "success": false,
-    "message": "Estoque insuficiente para 'X-Burguer'.",
-    "errors": null
-}
-
-// Não encontrado (404)
-{
-    "success": false,
-    "message": "Loja não encontrada ou inativa.",
-    "errors": null
-}
-```
-
----
-
-## 14. Comandos do Dia a Dia
-
-```bash
-# Entrar no container
-docker compose exec app bash
-
-# Migrations
-php artisan migrate
-php artisan migrate:rollback
-php artisan migrate:fresh --seed   # ⚠ apaga tudo e recria
-
-# Testes
-php artisan test                          # todos
-php artisan test --filter=PlaceOrder      # filtrado
-php artisan test --coverage               # com cobertura
-
-# Cache (quando algo estranho acontecer)
-php artisan config:clear
-php artisan cache:clear
-php artisan route:clear
-
-# Code style (Laravel Pint)
-./vendor/bin/pint                    # corrige automaticamente
-./vendor/bin/pint --test             # só verifica, não corrige
-
-# Ver rotas
-php artisan route:list --path=api/v1
-```
-
----
-
-## 15. Variáveis de Ambiente por Contexto
-
-| Variável | Local | Produção |
-|----------|-------|----------|
-| `APP_ENV` | `local` | `production` |
-| `APP_DEBUG` | `true` | `false` |
-| `DB_HOST` | `pgsql` (container) | IP/hostname do servidor |
-| `CACHE_STORE` | `redis` | `redis` |
-| `QUEUE_CONNECTION` | `redis` | `redis` |
-| `TENANT_IDENTIFICATION` | `header` | `subdomain` |
-| `FRONTEND_URL` | `http://localhost:5173` | `https://app.topburguer.com.br` |
-
----
-
-## 16. Spec-Driven Development (SDD)
-
-**Nenhuma feature começa com código — começa com uma spec.**
-
-O guia completo está em `docs/SPEC_DRIVEN.md`. O fluxo resumido:
-
-```
-/new-spec {descrição}   → cria spec em docs/specs/ (Status: draft)
-                        → revisar, responder perguntas em aberto
-                        → mudar para Status: approved
-/new-feature {spec}     → implementa a partir da spec aprovada
-                        → testes passando → Status: implemented
-```
-
-### Por que não pular a spec?
-
-Sem spec a IA (e o dev) implementa o que *acha* que foi pedido. Com spec, o contrato da API, as regras de negócio e os edge cases são acordados **antes** de qualquer código — eliminando refactoring de lógica e APIs que o frontend vai precisar quebrar.
-
-### Specs ficam em `docs/specs/`
-
-Convenção de nome: `{dominio}-{acao-kebab-case}.md`
-
-```
-docs/specs/
-├── _TEMPLATE.md                      ← template para novas specs
-├── store-perfil-publico.md           ← exemplo (já implementado)
-└── order-listagem-por-telefone.md    ← exemplo (a implementar)
-```
-
----
-
-## 17. Slash Commands (Claude Code)
-
-Atalhos disponíveis em `.claude/commands/`:
-
-| Comando | O que faz |
-|---------|-----------|
-| `/new-spec {feature}` | Cria spec em `docs/specs/` com template completo |
-| `/new-feature {spec}` | Implementa feature a partir de spec aprovada |
-| `/review-code {arquivo}` | Revisa código contra os padrões deste projeto |
-
-Para usar no Claude Code: `/new-spec listagem de pedidos por telefone`
-
----
-
-*Última atualização: 2026-06-06 — João Pedro / Claude*
+// Erro de neg�
