@@ -87,4 +87,13 @@ class AuthController extends Controller
 
     private function formatProfile($profile): ?array
     {
-        if (! $pr
+        if (! $profile) return null;
+
+        return [
+            'id'        => $profile->id,
+            'role'      => $profile->role,
+            'store_id'  => $profile->store_id,
+            'is_active' => $profile->is_active,
+        ];
+    }
+}

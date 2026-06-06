@@ -54,4 +54,8 @@ class Profile extends Model
         return in_array($this->role, self::PLATFORM_ROLES);
     }
 
-    public function isStoreRo
+    public function isStoreRole(): bool
+    {
+        return ! $this->isPlatformRole();
+    }
+}

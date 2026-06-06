@@ -10,4 +10,12 @@ RUN apt-get update && apt-get install -y \
     && docker-php-ext-enable redis \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-COPY --from=composer:2.7 /usr/bin/comp
+COPY --from=composer:2.7 /usr/bin/composer /usr/bin/composer
+
+WORKDIR /var/www
+
+RUN useradd -u 1000 -ms /bin/bash www
+USER www
+
+EXPOSE 9000
+CMD ["php-fpm"]

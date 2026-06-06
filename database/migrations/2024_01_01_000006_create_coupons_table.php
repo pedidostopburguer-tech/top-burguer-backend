@@ -22,4 +22,17 @@ return new class extends Migration {
             $table->index(['store_id', 'code', 'is_active']);
         });
 
-        // Índice parcial único: impede c
+        // Índice parcial único: impede código duplicado entre campanhas ativas da mesma loja.
+        // Permite reutilização sazonal — o mesmo código pode existir em campanhas antigas
+        // inativas ou esgotadas, preservando histórico de relatórios.
+        DB::statement("
+            CREATE UNIQUE INDEX idx_unique_active_coupon_per_store
+            ON coupons (store_id, code)
+            WHERE is_active = true AND (max_uses IS NULL OR current_uses < max_uses)
+        ");
+    }
+    public function down(): void {
+        DB::statement('DROP INDEX IF EXISTS idx_unique_active_coupon_per_store');
+        Schema::dropIfExists('coupons');
+    }
+};

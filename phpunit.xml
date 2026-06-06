@@ -13,4 +13,7 @@
         <env name="DB_DATABASE" value="top_burguer_test"/>
         <env name="QUEUE_CONNECTION" value="sync"/>
         <env name="SESSION_DRIVER" value="array"/>
-        <env name="MAI
+        <env name="MAIL_MAILER" value="log"/>
+        <env name="FRONTEND_URL" value="http://localhost:5173"/>
+    </php>
+</phpunit>

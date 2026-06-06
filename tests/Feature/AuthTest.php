@@ -231,4 +231,15 @@ class AuthTest extends TestCase
 
     public function test_reset_password_com_token_invalido(): void
     {
-       
+        Password::shouldReceive('reset')
+            ->once()
+            ->andReturn(Password::INVALID_TOKEN);
+
+        $this->postJson('/api/v1/auth/reset-password', [
+            'token'                 => 'token-invalido',
+            'email'                 => 'usuario@test.com',
+            'password'              => 'nova_senha_123',
+            'password_confirmation' => 'nova_senha_123',
+        ])->assertStatus(422);
+    }
+}
