@@ -11,3 +11,6 @@
 /.vscode
 # Laravel logs
 storage/logs/*.log
+
+# Laravel logs
+storage/logs/*.log
