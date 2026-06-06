@@ -17,4 +17,12 @@ return new class extends Migration {
             $table->text('maps_url')->nullable();
             // opening_hours: [{ day: "Segunda-feira", hours: "18:00h às 04:00h" }]
             $table->json('opening_hours')->nullable();
-            // neighborhood
+            // neighborhood_fees: { "centro": 5.00, "laranjeiras": 6.00, ... }
+            $table->json('neighborhood_fees')->nullable();
+            $table->decimal('minimum_order', 10, 2)->default(0.00);
+            $table->decimal('default_delivery_fee', 10, 2)->default(0.00);
+            $table->timestamps();
+        });
+    }
+    public function down(): void { Schema::dropIfExists('store_settings'); }
+};

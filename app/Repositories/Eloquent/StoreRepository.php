@@ -10,4 +10,5 @@ class StoreRepository implements StoreRepositoryInterface
     public function getSettings(): ?StoreSettings { return StoreSettings::where('store_id', $this->tenantId())->first(); }
     public function updateSettings(array $data): StoreSettings { return StoreSettings::updateOrCreate(['store_id' => $this->tenantId()], $data); }
     public function getStatus(): ?StoreStatus { return StoreStatus::where('store_id', $this->tenantId())->first(); }
-    public function updateStatus(bool $isOpen, bool $isAuto): StoreStatus { return StoreStatus::updateOrCreate(['store_id' => $this->tenan
+    public function updateStatus(bool $isOpen, bool $isAuto): StoreStatus { return StoreStatus::updateOrCreate(['store_id' => $this->tenantId()], ['is_open' => $isOpen, 'is_auto' => $isAuto]); }
+}

@@ -46,4 +46,8 @@ class StoreSettings extends Model
         ];
     }
 
-    public function stor
+    public function store(): BelongsTo
+    {
+        return $this->belongsTo(Store::class);
+    }
+}

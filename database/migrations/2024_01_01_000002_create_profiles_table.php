@@ -12,4 +12,9 @@ return new class extends Migration {
             // store_id nulo = role de plataforma (super_admin, saas_support)
             $table->foreignUuid('store_id')->nullable()->constrained()->nullOnDelete();
             $table->string('role', 50);
-            $table->boolean('i
+            $table->boolean('is_active')->default(true);
+            $table->timestamps();
+        });
+    }
+    public function down(): void { Schema::dropIfExists('profiles'); }
+};

@@ -14,4 +14,5 @@ return new class extends Migration {
             $table->timestamps();
         });
     }
-    public function do
+    public function down(): void { Schema::dropIfExists('stores'); }
+};

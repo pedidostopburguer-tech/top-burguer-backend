@@ -560,4 +560,47 @@ php artisan route:list --path=api/v1
 
 ## 16. Spec-Driven Development (SDD)
 
-**Nenhuma feature come�
+**Nenhuma feature começa com código — começa com uma spec.**
+
+O guia completo está em `docs/SPEC_DRIVEN.md`. O fluxo resumido:
+
+```
+/new-spec {descrição}   → cria spec em docs/specs/ (Status: draft)
+                        → revisar, responder perguntas em aberto
+                        → mudar para Status: approved
+/new-feature {spec}     → implementa a partir da spec aprovada
+                        → testes passando → Status: implemented
+```
+
+### Por que não pular a spec?
+
+Sem spec a IA (e o dev) implementa o que *acha* que foi pedido. Com spec, o contrato da API, as regras de negócio e os edge cases são acordados **antes** de qualquer código — eliminando refactoring de lógica e APIs que o frontend vai precisar quebrar.
+
+### Specs ficam em `docs/specs/`
+
+Convenção de nome: `{dominio}-{acao-kebab-case}.md`
+
+```
+docs/specs/
+├── _TEMPLATE.md                      ← template para novas specs
+├── store-perfil-publico.md           ← exemplo (já implementado)
+└── order-listagem-por-telefone.md    ← exemplo (a implementar)
+```
+
+---
+
+## 17. Slash Commands (Claude Code)
+
+Atalhos disponíveis em `.claude/commands/`:
+
+| Comando | O que faz |
+|---------|-----------|
+| `/new-spec {feature}` | Cria spec em `docs/specs/` com template completo |
+| `/new-feature {spec}` | Implementa feature a partir de spec aprovada |
+| `/review-code {arquivo}` | Revisa código contra os padrões deste projeto |
+
+Para usar no Claude Code: `/new-spec listagem de pedidos por telefone`
+
+---
+
+*Última atualização: 2026-06-06 — João Pedro / Claude*
