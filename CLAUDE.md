@@ -101,4 +101,56 @@ php artisan config:clear && php artisan cache:clear
 ```php
 // config/sanctum.php
 'guard' => ['web'],
-// N
+// NÃO usar ['api'] — causaria busca de coluna api_token inexistente
+```
+
+**Por que `defaults.guard = 'web'`?**
+Se `defaults.guard = 'api'` com `driver = 'sanctum'`, o Sanctum Guard chama `$this->auth->user()` internamente → resolve o guard padrão → si mesmo → loop infinito / memory exhausted.
+
+**Rotas protegidas:** usar `auth:sanctum` diretamente (não `auth` nem `auth:api`).
+
+**Reset de senha:** backend é API-only, sem named route `password.reset`. O `AppServiceProvider` usa `ResetPassword::createUrlUsing()` para apontar ao frontend.
+
+**`$request->validated()` omite `password_confirmation`** — campos `_confirmation` são removidos pelo Laravel após validação. Usar `$request->only([..., 'password_confirmation'])` quando o broker do Laravel precisar dele.
+
+---
+
+## RBAC — middlewares disponíveis
+
+```php
+// Verifica papel (qualquer tenant)
+->middleware('role:store_owner,store_manager')
+
+// Verifica papel E que o usuário pertence ao tenant atual
+->middleware('tenant.role:store_owner')
+```
+
+Roles: `super_admin`, `saas_support` (plataforma, store_id null) · `store_owner`, `store_manager`, `kitchen_staff`, `delivery_driver` (loja, store_id obrigatório).
+
+---
+
+## Status atual do projeto (Card 16 completo)
+
+| Área | Status |
+|------|--------|
+| Docker (PHP 8.4, Nginx, PostgreSQL, Redis) | ✅ |
+| Schema PostgreSQL (11 tabelas, migrations ordenadas) | ✅ |
+| Models + BelongsToTenant trait | ✅ |
+| Factories para todos os Models | ✅ |
+| Repository Pattern (4 domínios) | ✅ |
+| Services de domínio (Product, Order, Coupon, Store) | ✅ |
+| Auth JWT via Sanctum (register/login/logout/me/reset) | ✅ |
+| RBAC middlewares (CheckRole, CheckTenantRole) | ✅ |
+| Testes Feature: 19/19 verdes | ✅ |
+| Spec-Driven Development (SDD) setup | ✅ |
+
+---
+
+## O que NÃO fazer
+
+- `dd()`, `dump()` ou `var_dump()` em código commitado
+- Lógica de negócio em Controller, Model ou FormRequest
+- Acesso a `request()` dentro de Service
+- Migration sem método `down()`
+- Filtrar `store_id` manualmente em queries de Models com `BelongsToTenant`
+- Expor `store_id` na resposta da API pública
