@@ -1,5 +1,7 @@
 <?php
+
 namespace App\Traits;
+
 use App\Models\Store;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -23,7 +25,9 @@ trait BelongsToTenant
         static::creating(function ($model) {
             if (empty($model->store_id)) {
                 $storeId = app('current_tenant_id');
-                if (! $storeId) throw new RuntimeException('Nenhum tenant identificado no request.');
+                if (! $storeId) {
+                    throw new RuntimeException('Nenhum tenant identificado no request.');
+                }
                 $model->store_id = $storeId;
             }
         });

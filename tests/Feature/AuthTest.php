@@ -1,4 +1,5 @@
 <?php
+
 namespace Tests\Feature;
 
 use App\Models\Profile;
@@ -25,12 +26,12 @@ class AuthTest extends TestCase
 
     private function makeUserWithProfile(array $overrides = []): array
     {
-        $store   = $this->makeStore();
-        $user    = User::factory()->create(['password' => Hash::make('senha123456')]);
+        $store = $this->makeStore();
+        $user = User::factory()->create(['password' => Hash::make('senha123456')]);
         $profile = Profile::factory()->create(array_merge([
-            'user_id'   => $user->id,
-            'store_id'  => $store->id,
-            'role'      => 'store_owner',
+            'user_id' => $user->id,
+            'store_id' => $store->id,
+            'role' => 'store_owner',
             'is_active' => true,
         ], $overrides));
 
@@ -46,19 +47,19 @@ class AuthTest extends TestCase
         $store = $this->makeStore();
 
         $response = $this->postJson('/api/v1/auth/register', [
-            'name'                  => 'João Teste',
-            'email'                 => 'joao@test.com',
-            'password'              => 'senha123456',
+            'name' => 'João Teste',
+            'email' => 'joao@test.com',
+            'password' => 'senha123456',
             'password_confirmation' => 'senha123456',
-            'store_id'              => $store->id,
+            'store_id' => $store->id,
         ]);
 
         $response->assertStatus(201)
-                 ->assertJsonStructure([
-                     'success', 'message',
-                     'data' => ['user' => ['id', 'name', 'email'], 'profile', 'token'],
-                 ])
-                 ->assertJsonPath('success', true);
+            ->assertJsonStructure([
+                'success', 'message',
+                'data' => ['user' => ['id', 'name', 'email'], 'profile', 'token'],
+            ])
+            ->assertJsonPath('success', true);
 
         $this->assertDatabaseHas('users', ['email' => 'joao@test.com']);
         $this->assertDatabaseHas('profiles', ['store_id' => $store->id, 'role' => 'store_owner']);
@@ -70,22 +71,22 @@ class AuthTest extends TestCase
         User::factory()->create(['email' => 'dup@test.com']);
 
         $this->postJson('/api/v1/auth/register', [
-            'name'                  => 'Outro',
-            'email'                 => 'dup@test.com',
-            'password'              => 'senha123456',
+            'name' => 'Outro',
+            'email' => 'dup@test.com',
+            'password' => 'senha123456',
             'password_confirmation' => 'senha123456',
-            'store_id'              => $store->id,
+            'store_id' => $store->id,
         ])->assertStatus(422);
     }
 
     public function test_register_com_store_id_invalido(): void
     {
         $this->postJson('/api/v1/auth/register', [
-            'name'                  => 'Teste',
-            'email'                 => 'teste@test.com',
-            'password'              => 'senha123456',
+            'name' => 'Teste',
+            'email' => 'teste@test.com',
+            'password' => 'senha123456',
             'password_confirmation' => 'senha123456',
-            'store_id'              => '00000000-0000-0000-0000-000000000000',
+            'store_id' => '00000000-0000-0000-0000-000000000000',
         ])->assertStatus(422);
     }
 
@@ -94,11 +95,11 @@ class AuthTest extends TestCase
         $store = $this->makeStore();
 
         $this->postJson('/api/v1/auth/register', [
-            'name'                  => 'Teste',
-            'email'                 => 'teste@test.com',
-            'password'              => '123',
+            'name' => 'Teste',
+            'email' => 'teste@test.com',
+            'password' => '123',
             'password_confirmation' => '123',
-            'store_id'              => $store->id,
+            'store_id' => $store->id,
         ])->assertStatus(422);
     }
 
@@ -111,13 +112,13 @@ class AuthTest extends TestCase
         ['user' => $user] = $this->makeUserWithProfile();
 
         $response = $this->postJson('/api/v1/auth/login', [
-            'email'    => $user->email,
+            'email' => $user->email,
             'password' => 'senha123456',
         ]);
 
         $response->assertStatus(200)
-                 ->assertJsonStructure(['data' => ['user', 'profile', 'token']])
-                 ->assertJsonPath('data.user.email', $user->email);
+            ->assertJsonStructure(['data' => ['user', 'profile', 'token']])
+            ->assertJsonPath('data.user.email', $user->email);
     }
 
     public function test_login_com_senha_errada(): void
@@ -126,7 +127,7 @@ class AuthTest extends TestCase
 
         // AuthService lança ValidationException->status(401)
         $this->postJson('/api/v1/auth/login', [
-            'email'    => $user->email,
+            'email' => $user->email,
             'password' => 'senha_errada',
         ])->assertStatus(401);
     }
@@ -137,7 +138,7 @@ class AuthTest extends TestCase
 
         // AuthService lança ValidationException->status(403)
         $this->postJson('/api/v1/auth/login', [
-            'email'    => $user->email,
+            'email' => $user->email,
             'password' => 'senha123456',
         ])->assertStatus(403);
     }
@@ -152,14 +153,14 @@ class AuthTest extends TestCase
         Sanctum::actingAs($user);
 
         $this->postJson('/api/v1/auth/logout')
-             ->assertStatus(200)
-             ->assertJsonPath('success', true);
+            ->assertStatus(200)
+            ->assertJsonPath('success', true);
     }
 
     public function test_logout_sem_token(): void
     {
         $this->postJson('/api/v1/auth/logout')
-             ->assertStatus(401);
+            ->assertStatus(401);
     }
 
     // -------------------------------------------------------------------------
@@ -172,15 +173,15 @@ class AuthTest extends TestCase
         Sanctum::actingAs($user);
 
         $this->getJson('/api/v1/auth/me')
-             ->assertStatus(200)
-             ->assertJsonStructure(['data' => ['user', 'profile']])
-             ->assertJsonPath('data.user.email', $user->email);
+            ->assertStatus(200)
+            ->assertJsonStructure(['data' => ['user', 'profile']])
+            ->assertJsonPath('data.user.email', $user->email);
     }
 
     public function test_me_sem_token(): void
     {
         $this->getJson('/api/v1/auth/me')
-             ->assertStatus(401);
+            ->assertStatus(401);
     }
 
     // -------------------------------------------------------------------------
@@ -192,15 +193,15 @@ class AuthTest extends TestCase
         ['user' => $user] = $this->makeUserWithProfile();
 
         $this->postJson('/api/v1/auth/forgot-password', ['email' => $user->email])
-             ->assertStatus(200)
-             ->assertJsonPath('success', true);
+            ->assertStatus(200)
+            ->assertJsonPath('success', true);
     }
 
     public function test_forgot_password_email_inexistente(): void
     {
         $this->postJson('/api/v1/auth/forgot-password', ['email' => 'naoexiste@test.com'])
-             ->assertStatus(200)
-             ->assertJsonPath('success', true);
+            ->assertStatus(200)
+            ->assertJsonPath('success', true);
     }
 
     // -------------------------------------------------------------------------
@@ -217,16 +218,17 @@ class AuthTest extends TestCase
                 // Simula o broker chamando o callback com um User fake
                 $user = User::factory()->make();
                 $callback($user, 'nova_senha_123');
+
                 return Password::PASSWORD_RESET;
             });
 
         $this->postJson('/api/v1/auth/reset-password', [
-            'token'                 => 'token-valido-qualquer',
-            'email'                 => 'usuario@test.com',
-            'password'              => 'nova_senha_123',
+            'token' => 'token-valido-qualquer',
+            'email' => 'usuario@test.com',
+            'password' => 'nova_senha_123',
             'password_confirmation' => 'nova_senha_123',
         ])->assertStatus(200)
-          ->assertJsonPath('success', true);
+            ->assertJsonPath('success', true);
     }
 
     public function test_reset_password_com_token_invalido(): void
@@ -236,9 +238,9 @@ class AuthTest extends TestCase
             ->andReturn(Password::INVALID_TOKEN);
 
         $this->postJson('/api/v1/auth/reset-password', [
-            'token'                 => 'token-invalido',
-            'email'                 => 'usuario@test.com',
-            'password'              => 'nova_senha_123',
+            'token' => 'token-invalido',
+            'email' => 'usuario@test.com',
+            'password' => 'nova_senha_123',
             'password_confirmation' => 'nova_senha_123',
         ])->assertStatus(422);
     }

@@ -1,5 +1,7 @@
 <?php
+
 namespace App\Http\Middleware;
+
 use App\Models\Store;
 use Closure;
 use Illuminate\Http\Request;
@@ -38,11 +40,12 @@ class IdentifyTenant
             return $request->header('X-Store-Slug');
         }
         // 2. Subdomínio (produção: minha-loja.topburguer.com.br)
-        $host    = $request->getHost();
+        $host = $request->getHost();
         $appHost = parse_url(config('app.url'), PHP_URL_HOST) ?? 'localhost';
         if (str_ends_with($host, '.'.$appHost)) {
             return str($host)->before('.'.$appHost)->toString();
         }
+
         return null;
     }
 }

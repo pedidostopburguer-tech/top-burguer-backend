@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -14,10 +15,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string|null $store_address
  * @property string|null $whatsapp_number
  * @property string|null $maps_url
- * @property array|null  $opening_hours    [{ day: "Segunda-feira", hours: "18:00h às 04:00h" }]
- * @property array|null  $neighborhood_fees { "centro": 5.00, "laranjeiras": 6.00 }
- * @property float       $minimum_order
- * @property float       $default_delivery_fee
+ * @property array|null $opening_hours [{ day: "Segunda-feira", hours: "18:00h às 04:00h" }]
+ * @property array|null $neighborhood_fees { "centro": 5.00, "laranjeiras": 6.00 }
+ * @property float $minimum_order
+ * @property float $default_delivery_fee
  */
 class StoreSettings extends Model
 {
@@ -39,9 +40,9 @@ class StoreSettings extends Model
     protected function casts(): array
     {
         return [
-            'opening_hours'        => 'array',
-            'neighborhood_fees'    => 'array',
-            'minimum_order'        => 'decimal:2',
+            'opening_hours' => 'array',
+            'neighborhood_fees' => 'array',
+            'minimum_order' => 'decimal:2',
             'default_delivery_fee' => 'decimal:2',
         ];
     }

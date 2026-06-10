@@ -1,4 +1,8 @@
 <?php
+
+use App\Http\Middleware\CheckRole;
+use App\Http\Middleware\CheckTenantRole;
+use App\Http\Middleware\IdentifyTenant;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -11,12 +15,12 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->api(prepend: [
-            \App\Http\Middleware\IdentifyTenant::class,
+            IdentifyTenant::class,
         ]);
         $middleware->alias([
-            'tenant'      => \App\Http\Middleware\IdentifyTenant::class,
-            'role'        => \App\Http\Middleware\CheckRole::class,
-            'tenant.role' => \App\Http\Middleware\CheckTenantRole::class,
+            'tenant' => IdentifyTenant::class,
+            'role' => CheckRole::class,
+            'tenant.role' => CheckTenantRole::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {})

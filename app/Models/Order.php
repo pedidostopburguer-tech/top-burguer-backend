@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Models;
 
 use App\Traits\BelongsToTenant;
@@ -35,16 +36,25 @@ class Order extends Model
         'total',
         'status',
         'rejection_reason',
+        'rating',
+        'feedback_text',
+        'production_started_at',
+        'dispatched_at',
+        'channel',
+        'table_number',
     ];
 
     protected function casts(): array
     {
         return [
-            'items'           => 'array',
-            'subtotal'        => 'decimal:2',
-            'delivery_fee'    => 'decimal:2',
+            'items' => 'array',
+            'subtotal' => 'decimal:2',
+            'delivery_fee' => 'decimal:2',
             'discount_amount' => 'decimal:2',
-            'total'           => 'decimal:2',
+            'total' => 'decimal:2',
+            'rating' => 'integer',
+            'production_started_at' => 'datetime',
+            'dispatched_at' => 'datetime',
         ];
     }
 
@@ -53,9 +63,9 @@ class Order extends Model
 
     /** Próximo status válido na sequência de progressão */
     const STATUS_FLOW = [
-        'Realizado'          => 'Em produção',
-        'Em produção'        => 'Saiu para entrega',
-        'Saiu para entrega'  => 'Finalizado',
+        'Realizado' => 'Em produção',
+        'Em produção' => 'Saiu para entrega',
+        'Saiu para entrega' => 'Finalizado',
     ];
 
     public function store(): BelongsTo

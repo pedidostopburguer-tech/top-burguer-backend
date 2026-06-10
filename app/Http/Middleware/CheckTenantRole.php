@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Middleware;
 
 use Closure;
@@ -18,13 +19,13 @@ class CheckTenantRole
 {
     public function handle(Request $request, Closure $next, string ...$roles): Response
     {
-        $profile   = $request->user()?->profile;
-        $tenantId  = app('current_tenant_id');
+        $profile = $request->user()?->profile;
+        $tenantId = app('current_tenant_id');
 
         $unauthorized = response()->json([
             'success' => false,
             'message' => 'Acesso não autorizado.',
-            'errors'  => null,
+            'errors' => null,
         ], 403);
 
         if (! $profile) {

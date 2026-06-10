@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
@@ -11,11 +12,11 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  * Loja (tenant). Tabela-raiz do isolamento multi-tenant.
  * Identificada no request via header X-Store-Slug → IdentifyTenant middleware.
  *
- * @property string $id   UUID
+ * @property string $id UUID
  * @property string $name
- * @property string $slug  Usado como identificador público (header X-Store-Slug)
+ * @property string $slug Usado como identificador público (header X-Store-Slug)
  * @property string|null $logo_url
- * @property bool   $is_active
+ * @property bool $is_active
  */
 class Store extends Model
 {

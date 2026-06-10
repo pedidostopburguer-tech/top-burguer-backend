@@ -1,4 +1,5 @@
 <?php
+
 namespace Tests\Feature;
 
 use App\Models\Profile;
@@ -16,12 +17,12 @@ class RBACTest extends TestCase
     private function createUser(string $role, ?Store $store = null): User
     {
         $store ??= Store::factory()->create();
-        $user   = User::factory()->create(['password' => Hash::make('senha123456')]);
+        $user = User::factory()->create(['password' => Hash::make('senha123456')]);
 
         Profile::factory()->create([
-            'user_id'   => $user->id,
-            'store_id'  => $store->id,
-            'role'      => $role,
+            'user_id' => $user->id,
+            'store_id' => $store->id,
+            'role' => $role,
             'is_active' => true,
         ]);
 
@@ -35,12 +36,12 @@ class RBACTest extends TestCase
     public function test_store_owner_autenticado_acessa_rota_admin(): void
     {
         $store = Store::factory()->create();
-        $user  = $this->createUser('store_owner', $store);
+        $user = $this->createUser('store_owner', $store);
         Sanctum::actingAs($user);
 
         $this->withHeader('X-Store-Slug', $store->slug)
-             ->getJson('/api/v1/admin/orders')
-             ->assertStatus(200);
+            ->getJson('/api/v1/admin/orders')
+            ->assertStatus(200);
     }
 
     public function test_unauthenticated_nao_acessa_rota_admin(): void
@@ -48,8 +49,8 @@ class RBACTest extends TestCase
         $store = Store::factory()->create();
 
         $this->withHeader('X-Store-Slug', $store->slug)
-             ->getJson('/api/v1/admin/orders')
-             ->assertStatus(401);
+            ->getJson('/api/v1/admin/orders')
+            ->assertStatus(401);
     }
 
     // -------------------------------------------------------------------------
@@ -58,11 +59,11 @@ class RBACTest extends TestCase
 
     public function test_profile_is_platform_role(): void
     {
-        $user    = User::factory()->create();
+        $user = User::factory()->create();
         $profile = Profile::factory()->create([
-            'user_id'  => $user->id,
+            'user_id' => $user->id,
             'store_id' => null,
-            'role'     => 'super_admin',
+            'role' => 'super_admin',
         ]);
 
         $this->assertTrue($profile->isPlatformRole());
@@ -71,12 +72,12 @@ class RBACTest extends TestCase
 
     public function test_profile_is_store_role(): void
     {
-        $store   = Store::factory()->create();
-        $user    = User::factory()->create();
+        $store = Store::factory()->create();
+        $user = User::factory()->create();
         $profile = Profile::factory()->create([
-            'user_id'  => $user->id,
+            'user_id' => $user->id,
             'store_id' => $store->id,
-            'role'     => 'kitchen_staff',
+            'role' => 'kitchen_staff',
         ]);
 
         $this->assertFalse($profile->isPlatformRole());

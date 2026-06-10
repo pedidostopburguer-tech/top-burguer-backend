@@ -1,4 +1,5 @@
 <?php
+
 namespace Database\Factories;
 
 use App\Models\Coupon;
@@ -12,16 +13,16 @@ class CouponFactory extends Factory
     public function definition(): array
     {
         return [
-            'store_id'        => Store::factory(),
-            'code'            => strtoupper($this->faker->unique()->bothify('??##??')),
-            'discount_type'   => $this->faker->randomElement(Coupon::TYPES),
-            'discount_value'  => $this->faker->randomFloat(2, 5, 30),
+            'store_id' => Store::factory(),
+            'code' => strtoupper($this->faker->unique()->bothify('??##??')),
+            'discount_type' => $this->faker->randomElement(Coupon::TYPES),
+            'discount_value' => $this->faker->randomFloat(2, 5, 30),
             'min_order_value' => $this->faker->randomFloat(2, 0, 40),
-            'max_uses'        => $this->faker->optional()->numberBetween(50, 500),
-            'current_uses'    => 0,
-            'starts_at'       => now()->subDay(),
-            'expires_at'      => $this->faker->optional()->dateTimeBetween('+7 days', '+90 days'),
-            'is_active'       => true,
+            'max_uses' => $this->faker->optional()->numberBetween(50, 500),
+            'current_uses' => 0,
+            'starts_at' => now()->subDay(),
+            'expires_at' => $this->faker->optional()->dateTimeBetween('+7 days', '+90 days'),
+            'is_active' => true,
         ];
     }
 
@@ -29,14 +30,14 @@ class CouponFactory extends Factory
     {
         return $this->state([
             'expires_at' => now()->subDay(),
-            'is_active'  => false,
+            'is_active' => false,
         ]);
     }
 
     public function freeDelivery(): static
     {
         return $this->state([
-            'discount_type'  => 'free_delivery',
+            'discount_type' => 'free_delivery',
             'discount_value' => 0,
         ]);
     }
