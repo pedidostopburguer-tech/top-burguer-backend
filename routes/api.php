@@ -1,5 +1,10 @@
 <?php
-use App\Http\Controllers\Api\V1\{AuthController, CouponController, OrderController, ProductController, StoreController};
+
+use App\Http\Controllers\Api\V1\AuthController;
+use App\Http\Controllers\Api\V1\CouponController;
+use App\Http\Controllers\Api\V1\OrderController;
+use App\Http\Controllers\Api\V1\ProductController;
+use App\Http\Controllers\Api\V1\StoreController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->group(function () {
@@ -8,15 +13,15 @@ Route::prefix('v1')->group(function () {
     // Auth (sem middleware — rate limit via throttle)
     // -------------------------------------------------------------------------
     Route::prefix('auth')->middleware('throttle:6,1')->group(function () {
-        Route::post('register',        [AuthController::class, 'register']);
-        Route::post('login',           [AuthController::class, 'login']);
+        Route::post('register', [AuthController::class, 'register']);
+        Route::post('login', [AuthController::class, 'login']);
         Route::post('forgot-password', [AuthController::class, 'forgotPassword']);
-        Route::post('reset-password',  [AuthController::class, 'resetPassword']);
+        Route::post('reset-password', [AuthController::class, 'resetPassword']);
     });
 
     Route::middleware('auth:sanctum')->prefix('auth')->group(function () {
         Route::post('logout', [AuthController::class, 'logout']);
-        Route::get('me',      [AuthController::class, 'me']);
+        Route::get('me', [AuthController::class, 'me']);
     });
 
     // -------------------------------------------------------------------------
@@ -24,6 +29,7 @@ Route::prefix('v1')->group(function () {
     Route::get('store', [StoreController::class, 'profile']);
     Route::get('products', [ProductController::class, 'index']);
     Route::post('orders', [OrderController::class, 'store']);
+    Route::patch('orders/{id}/feedback', [OrderController::class, 'feedback']);
     Route::post('coupons/validate', [CouponController::class, 'validate']);
 
     // Rotas ADMIN (autenticação via Sanctum)

@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Middleware;
 
 use Closure;
@@ -22,7 +23,7 @@ class CheckRole
             return response()->json([
                 'success' => false,
                 'message' => 'Acesso não autorizado.',
-                'errors'  => null,
+                'errors' => null,
             ], 403);
         }
 

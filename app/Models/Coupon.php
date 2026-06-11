@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Models;
 
 use App\Traits\BelongsToTenant;
@@ -38,11 +39,11 @@ class Coupon extends Model
     protected function casts(): array
     {
         return [
-            'discount_value'  => 'decimal:2',
+            'discount_value' => 'decimal:2',
             'min_order_value' => 'decimal:2',
-            'is_active'       => 'boolean',
-            'starts_at'       => 'datetime',
-            'expires_at'      => 'datetime',
+            'is_active' => 'boolean',
+            'starts_at' => 'datetime',
+            'expires_at' => 'datetime',
         ];
     }
 
@@ -76,6 +77,7 @@ class Coupon extends Model
         if ($this->max_uses !== null && $this->current_uses >= $this->max_uses) {
             return false;
         }
+
         return true;
     }
 
@@ -90,10 +92,10 @@ class Coupon extends Model
         }
 
         return match ($this->discount_type) {
-            'percentage'    => round($subtotal * ((float) $this->discount_value / 100), 2),
-            'fixed'         => min((float) $this->discount_value, $subtotal),
+            'percentage' => round($subtotal * ((float) $this->discount_value / 100), 2),
+            'fixed' => min((float) $this->discount_value, $subtotal),
             'free_delivery' => $deliveryFee,
-            default         => 0.0,
+            default => 0.0,
         };
     }
 }

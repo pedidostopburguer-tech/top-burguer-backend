@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
@@ -19,9 +20,9 @@ class AuthController extends Controller
         $result = $this->auth->register($request->validated());
 
         return $this->created([
-            'user'    => $this->formatUser($result['user']),
+            'user' => $this->formatUser($result['user']),
             'profile' => $this->formatProfile($result['profile']),
-            'token'   => $result['token'],
+            'token' => $result['token'],
         ], 'Conta criada com sucesso.');
     }
 
@@ -33,25 +34,26 @@ class AuthController extends Controller
         );
 
         return $this->success([
-            'user'    => $this->formatUser($result['user']),
+            'user' => $this->formatUser($result['user']),
             'profile' => $this->formatProfile($result['profile']),
-            'token'   => $result['token'],
+            'token' => $result['token'],
         ], 'Login realizado com sucesso.');
     }
 
     public function logout(Request $request): JsonResponse
     {
         $this->auth->logout($request->user());
+
         return $this->success(null, 'Logout realizado com sucesso.');
     }
 
     public function me(Request $request): JsonResponse
     {
-        $user    = $request->user()->load('profile');
+        $user = $request->user()->load('profile');
         $profile = $user->profile;
 
         return $this->success([
-            'user'    => $this->formatUser($user),
+            'user' => $this->formatUser($user),
             'profile' => $this->formatProfile($profile),
         ]);
     }
@@ -71,6 +73,7 @@ class AuthController extends Controller
         // validated() não inclui password_confirmation (usado só na validação).
         // Password::reset() interno do Laravel precisa dele para revalidar — passamos via only().
         $this->auth->resetPassword($request->only(['token', 'email', 'password', 'password_confirmation']));
+
         return $this->success(null, 'Senha redefinida com sucesso.');
     }
 
@@ -79,20 +82,22 @@ class AuthController extends Controller
     private function formatUser($user): array
     {
         return [
-            'id'    => $user->id,
-            'name'  => $user->name,
+            'id' => $user->id,
+            'name' => $user->name,
             'email' => $user->email,
         ];
     }
 
     private function formatProfile($profile): ?array
     {
-        if (! $profile) return null;
+        if (! $profile) {
+            return null;
+        }
 
         return [
-            'id'        => $profile->id,
-            'role'      => $profile->role,
-            'store_id'  => $profile->store_id,
+            'id' => $profile->id,
+            'role' => $profile->role,
+            'store_id' => $profile->store_id,
             'is_active' => $profile->is_active,
         ];
     }

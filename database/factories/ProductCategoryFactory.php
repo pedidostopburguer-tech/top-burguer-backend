@@ -1,9 +1,11 @@
 <?php
+
 namespace Database\Factories;
 
 use App\Models\ProductCategory;
 use App\Models\Store;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Support\Str;
 
 class ProductCategoryFactory extends Factory
 {
@@ -11,19 +13,15 @@ class ProductCategoryFactory extends Factory
 
     public function definition(): array
     {
-        return [
-            'store_id'   => Store::factory(),
-            'name'       => $this->faker->randomElement([
-                'Hambúrgueres', 'Porções', 'Bebidas', 'Sobremesas',
-                'Combos', 'Vegetariano', 'Frango', 'Acompanhamentos',
-            ]),
-            'sort_order' => $this->faker->numberBetween(0, 100),
-            'is_active'  => true,
-        ];
-    }
+        $name = $this->faker->randomElement([
+            'Hambúrgueres', 'Porções', 'Bebidas', 'Sobremesas',
+            'Combos', 'Vegetariano', 'Frango', 'Acompanhamentos',
+        ]);
 
-    public function inactive(): static
-    {
-        return $this->state(['is_active' => false]);
+        return [
+            'store_id' => Store::factory(),
+            'name' => $name,
+            'slug' => Str::slug($name),
+        ];
     }
 }

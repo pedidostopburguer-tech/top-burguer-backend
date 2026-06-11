@@ -175,7 +175,7 @@ Pedidos dos clientes. Escopados por tenant.
 | store_id         | uuid FK       | → stores.id                                 |
 | customer_name    | string        |                                             |
 | customer_phone   | string(20)    |                                             |
-| customer_address | text          |                                             |
+| address          | text          |                                             |
 | items            | json          | **snapshot imutável** — ver abaixo          |
 | subtotal         | decimal(10,2) |                                             |
 | delivery_fee     | decimal(10,2) | default 0.00                                |
@@ -185,6 +185,12 @@ Pedidos dos clientes. Escopados por tenant.
 | payment_method   | string(50)    |                                             |
 | notes            | text          | nullable                                    |
 | coupon_code      | string(50)    | nullable — código usado (desnormalizado)    |
+| rating           | integer       | nullable, de 1 a 5                          |
+| feedback_text    | text          | nullable                                    |
+| production_started_at | timestamp | nullable, timezone                          |
+| dispatched_at    | timestamp     | nullable, timezone                          |
+| channel          | string(20)    | default 'delivery' (delivery/mesa/balcao)   |
+| table_number     | string(50)    | nullable                                    |
 | created_at/updated_at | timestamps | |
 
 **Campo `items` (JSONB):**

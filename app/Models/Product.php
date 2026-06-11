@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Models;
 
 use App\Traits\BelongsToTenant;
@@ -34,9 +35,9 @@ class Product extends Model
     protected function casts(): array
     {
         return [
-            'price'          => 'decimal:2',
+            'price' => 'decimal:2',
             'stock_quantity' => 'integer',
-            'is_available'   => 'boolean',
+            'is_available' => 'boolean',
         ];
     }
 
@@ -56,6 +57,7 @@ class Product extends Model
         if ($this->stock_quantity === null) {
             return true; // ilimitado
         }
+
         return $this->stock_quantity >= $quantity;
     }
 }

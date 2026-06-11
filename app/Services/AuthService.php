@@ -1,8 +1,8 @@
 <?php
+
 namespace App\Services;
 
 use App\Models\Profile;
-use App\Models\Store;
 use App\Models\User;
 use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Support\Facades\Hash;
@@ -20,15 +20,15 @@ class AuthService
     public function register(array $data): array
     {
         $user = User::create([
-            'name'     => $data['name'],
-            'email'    => $data['email'],
+            'name' => $data['name'],
+            'email' => $data['email'],
             'password' => Hash::make($data['password']),
         ]);
 
         $profile = Profile::create([
-            'user_id'  => $user->id,
+            'user_id' => $user->id,
             'store_id' => $data['store_id'],
-            'role'     => 'store_owner',
+            'role' => 'store_owner',
             'is_active' => true,
         ]);
 
@@ -41,6 +41,7 @@ class AuthService
      * Autentica um usuário e retorna token + perfil.
      *
      * @return array{user: User, profile: Profile, token: string}
+     *
      * @throws ValidationException
      */
     public function login(string $email, string $password): array
@@ -93,14 +94,14 @@ class AuthService
     {
         $status = Password::reset(
             [
-                'email'                 => $data['email'],
-                'password'              => $data['password'],
+                'email' => $data['email'],
+                'password' => $data['password'],
                 'password_confirmation' => $data['password_confirmation'],
-                'token'                 => $data['token'],
+                'token' => $data['token'],
             ],
             function (User $user, string $password) {
                 $user->forceFill([
-                    'password'       => Hash::make($password),
+                    'password' => Hash::make($password),
                     'remember_token' => Str::random(60),
                 ])->save();
 

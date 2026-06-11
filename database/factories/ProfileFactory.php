@@ -1,4 +1,5 @@
 <?php
+
 namespace Database\Factories;
 
 use App\Models\Profile;
@@ -14,10 +15,10 @@ class ProfileFactory extends Factory
     public function definition(): array
     {
         return [
-            'id'       => (string) Str::uuid(),
-            'user_id'  => User::factory(),
+            'id' => (string) Str::uuid(),
+            'user_id' => User::factory(),
             'store_id' => Store::factory(),
-            'role'     => $this->faker->randomElement(Profile::ROLES),
+            'role' => $this->faker->randomElement(Profile::ROLES),
             'is_active' => true,
         ];
     }

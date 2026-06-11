@@ -1,4 +1,5 @@
 <?php
+
 namespace Database\Factories;
 
 use App\Models\Store;
@@ -12,8 +13,8 @@ class StoreStatusFactory extends Factory
     public function definition(): array
     {
         return [
-            'store_id'   => Store::factory(),
-            'is_open'    => $this->faker->boolean(70), // 70% chance aberta
+            'store_id' => Store::factory(),
+            'is_open' => $this->faker->boolean(70), // 70% chance aberta
             'updated_at' => now(),
         ];
     }

@@ -1,4 +1,5 @@
 <?php
+
 namespace Database\Factories;
 
 use App\Models\Coupon;
@@ -14,12 +15,13 @@ class CouponUsageFactory extends Factory
     public function definition(): array
     {
         $store = Store::factory()->create();
+
         return [
-            'store_id'       => $store->id,
-            'coupon_id'      => Coupon::factory()->state(['store_id' => $store->id]),
-            'order_id'       => Order::factory()->state(['store_id' => $store->id]),
+            'store_id' => $store->id,
+            'coupon_id' => Coupon::factory()->state(['store_id' => $store->id]),
+            'order_id' => Order::factory()->state(['store_id' => $store->id]),
             'customer_phone' => $this->faker->numerify('119########'),
-            'used_at'        => now(),
+            'used_at' => now(),
         ];
     }
 }
