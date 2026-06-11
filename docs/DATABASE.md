@@ -269,6 +269,27 @@ Registro de uso de cupom por pedido. Escopado por tenant.
 
 ---
 
+### `tables`
+Mesas físicas do estabelecimento (Modo Mesa). Escopado por tenant via `BelongsToTenant`.
+
+| Coluna         | Tipo        | Notas                                                        |
+|----------------|-------------|---------------------------------------------------------------|
+| id             | bigint PK   | auto-increment                                                 |
+| store_id       | uuid FK     | → stores.id · cascade                                          |
+| number         | string(10)  | identificador exibido (ex: "01", "VIP-2")                      |
+| qr_token       | string(32)  | unique global · usado na URL do QR Code (`?mesa={number}&t={qr_token}`), gerado automaticamente, rotacionável |
+| capacity       | integer     | nullable · nº de lugares                                       |
+| status         | string(20)  | default `'livre'` · `livre` \| `ocupada` \| `limpeza` (enum `App\Enums\TableStatus`) |
+| is_active      | boolean     | default `true` · `false` = mesa "excluída" (soft), preserva histórico |
+| created_at/updated_at | timestamps | |
+
+> Índice único parcial `(store_id, number) WHERE is_active = true` — duas mesas ATIVAS da
+> mesma loja não podem ter o mesmo `number`, mas o número pode ser reutilizado após uma mesa
+> ser desativada. `orders.table_number` continua sendo o snapshot string do número no momento
+> do pedido (não há FK entre `orders` e `tables`).
+
+---
+
 ## Decisões arquiteturais
 
 ### Multi-tenancy row-level
