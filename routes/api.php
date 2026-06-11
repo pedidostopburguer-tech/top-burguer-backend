@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\V1\CouponController;
 use App\Http\Controllers\Api\V1\OrderController;
 use App\Http\Controllers\Api\V1\ProductController;
 use App\Http\Controllers\Api\V1\StoreController;
+use App\Http\Controllers\Api\V1\TableController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->group(function () {
@@ -48,5 +49,14 @@ Route::prefix('v1')->group(function () {
 
         Route::put('store/settings', [StoreController::class, 'updateSettings']);
         Route::patch('store/status', [StoreController::class, 'updateStatus']);
+
+        Route::middleware('tenant.role:store_owner,store_manager')->group(function () {
+            Route::get('tables', [TableController::class, 'index']);
+            Route::post('tables', [TableController::class, 'store']);
+            Route::put('tables/{id}', [TableController::class, 'update']);
+            Route::patch('tables/{id}/status', [TableController::class, 'updateStatus']);
+            Route::patch('tables/{id}/rotate-qr', [TableController::class, 'rotateQr']);
+            Route::delete('tables/{id}', [TableController::class, 'destroy']);
+        });
     });
 });

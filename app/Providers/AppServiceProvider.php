@@ -6,10 +6,12 @@ use App\Repositories\Contracts\CouponRepositoryInterface;
 use App\Repositories\Contracts\OrderRepositoryInterface;
 use App\Repositories\Contracts\ProductRepositoryInterface;
 use App\Repositories\Contracts\StoreRepositoryInterface;
+use App\Repositories\Contracts\TableRepositoryInterface;
 use App\Repositories\Eloquent\CouponRepository;
 use App\Repositories\Eloquent\OrderRepository;
 use App\Repositories\Eloquent\ProductRepository;
 use App\Repositories\Eloquent\StoreRepository;
+use App\Repositories\Eloquent\TableRepository;
 use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\ServiceProvider;
@@ -28,6 +30,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(OrderRepositoryInterface::class, OrderRepository::class);
         $this->app->bind(CouponRepositoryInterface::class, CouponRepository::class);
         $this->app->bind(StoreRepositoryInterface::class, StoreRepository::class);
+        $this->app->bind(TableRepositoryInterface::class, TableRepository::class);
     }
 
     public function boot(): void

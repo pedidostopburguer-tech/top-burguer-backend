@@ -10,43 +10,64 @@
 
 ---
 
-## 1. Fechar gap de schema da tabela `orders` (alta prioridade)
+## 1. Fechar gap de schema da tabela `orders` (alta prioridade) — ✅ CONCLUÍDO (fe8185a)
 
-O Supabase já tem essas colunas (ver `db_schema.md` do frontend), o backend ainda não:
-
-- `rating` (INTEGER, nullable) — nota de 1 a 5 dada pelo cliente (Card 12)
-- `feedback_text` (TEXT, nullable) — comentário do cliente (Card 12)
-- `production_started_at` (TIMESTAMP TZ, nullable) — marcado ao entrar em "Em produção" (Card 15)
-- `dispatched_at` (TIMESTAMP TZ, nullable) — marcado ao sair para entrega/ser servido (Card 15)
-
-Adicionalmente, considerar um campo estruturado de **canal/origem** do pedido
-(`channel` enum: `delivery`, `mesa`, `balcao`, ou `table_number` nullable), já que hoje o
-frontend infere "pedido de mesa" por busca textual ("mesa X") — em multi-tenant isso deveria
-ser dado estruturado, não heurística de string.
-
-**Migration:** nova migration `add_feedback_and_bi_columns_to_orders_table` +
-atualizar `Order` model (casts, fillable) e `docs/DATABASE.md`.
+Implementado na migration `2026_06_10_195626_add_feedback_and_bi_columns_to_orders_table`:
+`rating`, `feedback_text`, `production_started_at`, `dispatched_at`, `channel` (default `delivery`)
+e `table_number` (nullable). `Order` model, `OrderResource` e `docs/DATABASE.md` já atualizados.
 
 ---
 
-## 2. Modo Mesa: decidir persistência server-side
+## 2. Modo Mesa: persistência server-side — ✅ IMPLEMENTADO (tabela `tables` dedicada)
 
-Hoje o `TablesTab.jsx` do frontend é 100% local (localStorage, até 50 mesas por navegador/dispositivo).
-Isso não escala em multi-tenant: troca de dispositivo perde as mesas, e QR Codes não são estáveis
-entre staff diferentes.
+Implementado conforme `docs/specs/store-tables.md`: migration `2026_06_11_000000_create_tables_table`,
+`Table` model (com enum `App\Enums\TableStatus` para `status`), repository/service, FormRequests,
+`TableController` + `TableResource`, factory e testes (`TableManagementTest`,
+`TableServiceTest`). Rotas em `/api/v1/admin/tables`, protegidas por `tenant.role:store_owner,store_manager`.
 
-**Proposta:** tabela `tables`:
+Falta apenas rodar `php artisan migrate` + `php artisan test` no container Docker para validar
+e aplicar a migration (não disponível no sandbox desta sessão).
+
+<details>
+<summary>Decisão original (histórico)</summary>
+
+Voltamos atrás da ideia de JSONB simples em `store_settings`. Pensando a longo prazo, o ganho de
+ter `tables` como entidade própria compensa o esforço extra: status de disponibilidade em tempo
+real (livre/ocupada/limpeza), QR token rotativo por mesa e métricas por mesa (giro, faturamento,
+tempo de ocupação) só são viáveis com registros individuais.
+
+**Schema proposto — tabela `tables`:**
 
 | Campo | Tipo | Descrição |
 |---|---|---|
 | `id` | bigint PK | |
 | `store_id` | uuid FK → stores | `BelongsToTenant` |
-| `number` | varchar/int | número/identificador da mesa |
-| `qr_token` | varchar único | usado na URL do QR Code (`?mesa=XX&t={qr_token}`) |
-| `is_active` | boolean default true | |
+| `number` | varchar(10) | identificador exibido (ex: "01", "VIP-2") |
+| `qr_token` | varchar único | usado na URL do QR Code (`?mesa={number}&t={qr_token}`), rotacionável |
+| `capacity` | integer nullable | nº de lugares (info útil pro PDV/Card 14 mais pra frente) |
+| `status` | varchar(20) default `'livre'` | `livre`, `ocupada`, `limpeza` — controle manual do staff |
+| `is_active` | boolean default true | mesa desativada some do painel sem perder histórico |
 | timestamps | | |
 
-Endpoints CRUD protegidos por `tenant.role:store_owner,store_manager`.
+Índice único `(store_id, number)`.
+
+**Relação com `orders.table_number`:** mantém como está (string denormalizada, já no item 1) —
+preserva o histórico mesmo se a mesa for renomeada/excluída depois. `tables.number` é a fonte
+da verdade atual; `orders.table_number` é o snapshot no momento do pedido.
+
+**Disponibilidade:** `status` é setado manualmente pelo staff (ex: ao fechar a comanda, marcar
+"limpeza" → depois "livre"). Pode evoluir depois para auto-transição (`ocupada` quando entra
+pedido `channel=mesa`, `limpeza` quando o pedido vira `Finalizado`), mas começar manual é mais
+simples e testável.
+
+**Endpoints:** CRUD em `/admin/tables`, protegido por `tenant.role:store_owner,store_manager`,
+mais talvez `PATCH /admin/tables/{id}/status` para troca rápida de status pelo garçom/staff.
+
+**Próximo passo:** `/new-spec` para detalhar em `docs/specs/store-tables.md` (contratos,
+regras de unicidade do `number`/`qr_token`, edge cases de exclusão de mesa com pedidos ativos,
+testes planejados).
+
+</details>
 
 ---
 
