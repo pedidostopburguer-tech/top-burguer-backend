@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\ProductStockUnit;
 use App\Traits\BelongsToTenant;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -13,7 +14,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * stock_quantity = null → estoque ilimitado (nunca esgota)
  * stock_quantity = 0    → esgotado (is_available vira false no OrderService)
  *
- * stock_unit: 'un' | 'porção' | 'g' | 'ml'
+ * stock_unit: enum App\Enums\ProductStockUnit (un | porção | g | ml)
  */
 class Product extends Model
 {
@@ -38,6 +39,7 @@ class Product extends Model
             'price' => 'decimal:2',
             'stock_quantity' => 'integer',
             'is_available' => 'boolean',
+            'stock_unit' => ProductStockUnit::class,
         ];
     }
 

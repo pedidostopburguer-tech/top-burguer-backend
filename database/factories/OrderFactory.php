@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Enums\OrderChannel;
 use App\Models\Order;
 use App\Models\Store;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -29,7 +30,7 @@ class OrderFactory extends Factory
             'status' => 'Realizado',
             'payment_method' => $this->faker->randomElement(['dinheiro', 'pix', 'cartao_credito', 'cartao_debito']),
             'coupon_code' => null,
-            'channel' => 'delivery',
+            'channel' => OrderChannel::Delivery->value,
             'table_number' => null,
             'rating' => null,
             'feedback_text' => null,

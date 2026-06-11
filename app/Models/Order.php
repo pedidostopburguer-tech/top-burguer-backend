@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\OrderChannel;
 use App\Traits\BelongsToTenant;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -55,6 +56,7 @@ class Order extends Model
             'rating' => 'integer',
             'production_started_at' => 'datetime',
             'dispatched_at' => 'datetime',
+            'channel' => OrderChannel::class,
         ];
     }
 
