@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Enums\CouponDiscountType;
 use App\Models\Coupon;
 use App\Repositories\Contracts\CouponRepositoryInterface;
 use Illuminate\Support\Facades\DB;
@@ -37,9 +38,9 @@ class CouponService
     private function calculateDiscount(Coupon $coupon, float $subtotal): float
     {
         return match ($coupon->discount_type) {
-            'percentage' => round($subtotal * ($coupon->discount_value / 100), 2),
-            'fixed' => min((float) $coupon->discount_value, $subtotal),
-            'free_delivery' => 0.0,
+            CouponDiscountType::Percentage => round($subtotal * ($coupon->discount_value / 100), 2),
+            CouponDiscountType::Fixed => min((float) $coupon->discount_value, $subtotal),
+            CouponDiscountType::FreeDelivery => 0.0,
             default => 0.0,
         };
     }

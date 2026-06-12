@@ -2,6 +2,8 @@
 
 namespace App\Services;
 
+use App\Enums\CouponDiscountType;
+use App\Enums\OrderChannel;
 use App\Models\Order;
 use App\Repositories\Contracts\OrderRepositoryInterface;
 use App\Repositories\Contracts\ProductRepositoryInterface;
@@ -46,7 +48,7 @@ class OrderService
             if (! empty($data['coupon_code'])) {
                 $result = $this->couponService->validate($data['coupon_code'], $data['subtotal'], $data['customer_phone']);
                 $couponModel = $result['coupon'];
-                if ($couponModel->discount_type === 'free_delivery') {
+                if ($couponModel->discount_type === CouponDiscountType::FreeDelivery) {
                     $deliveryFee = 0.0;
                 } else {
                     $discountAmount = $result['discount_amount'];
@@ -55,7 +57,7 @@ class OrderService
 
             $order = $this->orders->create([
                 ...$data,
-                'channel' => $data['channel'] ?? 'delivery',
+                'channel' => $data['channel'] ?? OrderChannel::Delivery->value,
                 'table_number' => $data['table_number'] ?? null,
                 'delivery_fee' => $deliveryFee,
                 'discount_amount' => $discountAmount,
@@ -100,7 +102,7 @@ class OrderService
                 $updateData['dispatched_at'] = now();
             }
 
-            if ($status === 'Finalizado' && $order->channel === 'mesa' && ! $order->dispatched_at) {
+            if ($status === 'Finalizado' && $order->channel === OrderChannel::Mesa && ! $order->dispatched_at) {
                 $updateData['dispatched_at'] = now();
             }
 

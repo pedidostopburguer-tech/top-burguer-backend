@@ -191,6 +191,58 @@ pagante em produção.
 
 ---
 
+## 11. Padronização com PHP Enums
+
+> Criado em 11/06/2026, junto com a spec `store-tables.md`. Contexto: ao modelar `Table.status`
+> como `App\Enums\TableStatus`, surgiu a pergunta "o que mais no sistema deveria ser enum?".
+
+### ✅ Concluído (refactor de baixo risco, sem migration)
+
+Os seguintes campos já eram `varchar` com conjunto fixo de valores e ganharam enum PHP +
+`casts()` no Model, sem alterar schema (cast aceita string em escrita, serializa como `->value`
+em JSON — `Resource`s não precisaram mudar):
+
+- `Order.channel` → `App\Enums\OrderChannel` (`delivery`, `mesa`, `balcao`)
+- `Coupon.discount_type` → `App\Enums\CouponDiscountType` (`percentage`, `fixed`, `free_delivery`)
+  — substituiu a constante `Coupon::TYPES`
+- `Product.stock_unit` → `App\Enums\ProductStockUnit` (`un`, `porção`, `g`, `ml`)
+
+Validação nos Controllers passou a usar `new Enum(XxxEnum::class)` (`Illuminate\Validation\Rules\Enum`)
+no lugar de `in:a,b,c`.
+
+### 🔜 Specs futuras (maior escopo — requerem `/new-spec` dedicado)
+
+- **`Order.status` → enum + `STATUS_FLOW`** (`App\Enums\OrderStatus`): hoje são as constantes
+  `Order::STATUSES` e `Order::STATUS_FLOW` (arrays de strings em PT-BR: `'Realizado'`,
+  `'Em produção'`, etc.). Vira enum, mas a transição de estado (`nextStatus()`,
+  `OrderService::updateStatus`) e a validação em `OrderController::updateStatus`
+  (`required|in:Realizado,Em produção,...`) precisam de cuidado extra — strings com acento/espaço
+  como `case` de enum funcionam, mas vale revisar se não é melhor usar valores ASCII
+  (`'em_producao'`) com label de exibição separado. Tocar em testes de Kanban/fluxo de status.
+- **`Profile.role` → enum** (`App\Enums\UserRole`): RBAC-sensível. Hoje `Profile::ROLES` e
+  `Profile::PLATFORM_ROLES` são arrays de strings, e os middlewares `role:` / `tenant.role:`
+  recebem os nomes de role como **parâmetros de string nas rotas** (`->middleware('role:store_owner,store_manager')`).
+  Migrar para enum exige decidir se os middlewares passam a aceitar `UserRole::case()->value` ou
+  se mantém strings nas rotas e só o Model/`casts()` usa o enum. Fazer como spec própria,
+  cobrindo todos os pontos de RBAC (testes de Auth/RBAC existentes não podem quebrar).
+- **FormRequest em `ProductController` e `CouponController`**: ainda usam `$request->validate([...])`
+  inline (diferente do padrão FormRequest adotado em `Table`). Padronizar para
+  `StoreProductRequest`/`UpdateProductRequest` e `StoreCouponRequest`/`UpdateCouponRequest`,
+  já usando `new Enum(...)` para `stock_unit`/`discount_type`.
+- **Policies/Gates**: direção futura discutida junto com a spec de `tables` — autorização
+  hoje é 100% via middlewares `role:`/`tenant.role:`. Policies dariam controle por recurso
+  (ex: "só o dono pode editar este cupom"), mas não é urgente — registrar aqui para não perder
+  o contexto da decisão.
+
+### 🔍 Candidato adicional (avaliar)
+
+- **`Order.payment_method`**: hoje é `'required|string|max:100'` (texto livre), mas a
+  `OrderFactory` só usa `dinheiro`, `pix`, `cartao_credito`, `cartao_debito`. Antes de virar
+  enum, confirmar com o frontend se cada loja pode cadastrar formas de pagamento próprias
+  (texto livre intencional) ou se o conjunto é fixo — só faz sentido enum se for fixo.
+
+---
+
 ## Ordem sugerida de execução
 
 1. Item 1 (schema `orders`) — rápido, desbloqueia 4, 8 e 10
@@ -203,3 +255,6 @@ pagante em produção.
 8. Item 6 (realtime/broadcasting)
 9. Item 5 (auth do painel — Card 16, maior esforço, principalmente frontend)
 10. Item 9 (PDV/Balcão — depende do frontend implementar o Card 14 primeiro)
+11. Item 11 (Enums futuros: `Order.status`, `Profile.role`, FormRequests Product/Coupon, Policies) —
+    fazer junto com os respectivos itens acima quando essas áreas forem mexidas (ex: `Order.status`
+    junto do item 9/Kanban, `Profile.role` junto do item 5/auth do painel)

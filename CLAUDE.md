@@ -9,6 +9,18 @@ Stack: Laravel 12 · PHP 8.4 (Docker) · PostgreSQL 16 · Redis 7 · Sanctum
 
 ---
 
+## Branching
+
+```
+feature/* → develop → main
+```
+
+`develop` é a branch de integração padrão (toda feature nasce dela e volta pra ela via PR).
+`main` reflete sempre a última versão estável/produção. Nomenclatura completa de branches e
+Conventional Commits: ver `DEVELOPMENT.md` seção "Git Flow".
+
+---
+
 ## Regra de ouro: tudo roda dentro do container
 
 ```bash
@@ -58,6 +70,45 @@ O tenant é resolvido pelo header `X-Store-Slug` (dev) ou subdomínio (prod) no 
 ```
 
 Use os helpers do Controller base: `$this->success()`, `$this->created()`, `$this->error()`.
+
+---
+
+## Enums — padrão do projeto
+
+**Todo campo com conjunto fixo e conhecido de valores deve ser um PHP backed enum em `app/Enums/`.**
+Não usar `const ARRAY = [...]` + `'in:a,b,c'` para valores fixos — isso é dívida técnica.
+
+```php
+// ❌ evitar
+const TYPES = ['percentage', 'fixed', 'free_delivery'];
+'discount_type' => 'required|in:percentage,fixed,free_delivery',
+
+// ✅ padrão
+enum CouponDiscountType: string
+{
+    case Percentage = 'percentage';
+    case Fixed = 'fixed';
+    case FreeDelivery = 'free_delivery';
+}
+
+// Model: protected function casts(): array { return ['discount_type' => CouponDiscountType::class]; }
+// FormRequest/Controller: 'discount_type' => ['required', new Enum(CouponDiscountType::class)]
+// Comparações: match ($coupon->discount_type) { CouponDiscountType::Percentage => ..., ... }
+```
+
+Backed enums (`: string`) serializam automaticamente para `->value` no JSON — não exige mudança em
+Resources. Cast Eloquent aceita string plain na escrita (`create()`/`update()`) e converte para
+instância de enum na leitura.
+
+**Já modelados como enum:** `Table.status` (`TableStatus`), `Order.channel` (`OrderChannel`),
+`Coupon.discount_type` (`CouponDiscountType`), `Product.stock_unit` (`ProductStockUnit`).
+
+**Pendentes (specs futuras — ver `docs/planejamento-multitenancy.md` item 11):**
+`Order.status` + `STATUS_FLOW` (`OrderStatus`), `Profile.role`/`PLATFORM_ROLES` (`UserRole` —
+RBAC-sensível, mexe nos middlewares `role:`/`tenant.role:`).
+
+Ao criar uma feature nova, qualquer campo com valores fixos (`status`, `type`, `channel`,
+`unit`, `method` etc.) já nasce como enum — não como string solta + `const`/`in:`.
 
 ---
 

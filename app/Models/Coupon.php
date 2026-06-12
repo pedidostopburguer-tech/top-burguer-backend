@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\CouponDiscountType;
 use App\Traits\BelongsToTenant;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -11,7 +12,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 /**
  * Cupom de desconto — escopo automático por tenant via BelongsToTenant.
  *
- * discount_type: 'percentage' | 'fixed' | 'free_delivery'
+ * discount_type: enum App\Enums\CouponDiscountType (percentage | fixed | free_delivery)
  * max_uses = null → usos ilimitados
  * expires_at = null → sem expiração
  *
@@ -44,10 +45,9 @@ class Coupon extends Model
             'is_active' => 'boolean',
             'starts_at' => 'datetime',
             'expires_at' => 'datetime',
+            'discount_type' => CouponDiscountType::class,
         ];
     }
-
-    const TYPES = ['percentage', 'fixed', 'free_delivery'];
 
     public function store(): BelongsTo
     {
@@ -92,9 +92,9 @@ class Coupon extends Model
         }
 
         return match ($this->discount_type) {
-            'percentage' => round($subtotal * ((float) $this->discount_value / 100), 2),
-            'fixed' => min((float) $this->discount_value, $subtotal),
-            'free_delivery' => $deliveryFee,
+            CouponDiscountType::Percentage => round($subtotal * ((float) $this->discount_value / 100), 2),
+            CouponDiscountType::Fixed => min((float) $this->discount_value, $subtotal),
+            CouponDiscountType::FreeDelivery => $deliveryFee,
             default => 0.0,
         };
     }
