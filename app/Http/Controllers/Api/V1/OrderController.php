@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Enums\OrderChannel;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Order\StoreOrderFeedbackRequest;
 use App\Http\Resources\OrderResource;
@@ -10,6 +11,7 @@ use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rules\Enum;
 
 class OrderController extends Controller
 {
@@ -35,7 +37,7 @@ class OrderController extends Controller
             'subtotal' => 'required|numeric|min:0',
             'delivery_fee' => 'required|numeric|min:0',
             'coupon_code' => 'nullable|string',
-            'channel' => 'nullable|string|in:delivery,mesa,balcao',
+            'channel' => ['nullable', new Enum(OrderChannel::class)],
             'table_number' => 'nullable|string|max:50',
         ]);
         try {

@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Order;
 
+use App\Enums\OrderChannel;
 use App\Models\Order;
 use App\Models\Product;
 use App\Models\Store;
@@ -127,7 +128,7 @@ class OrderServiceTest extends TestCase
 
         $order = $this->service->place($orderData);
 
-        $this->assertEquals('mesa', $order->channel);
+        $this->assertEquals(OrderChannel::Mesa, $order->channel);
         $this->assertEquals('42', $order->table_number);
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Repositories\Eloquent;
 
+use App\Enums\OrderChannel;
 use App\Enums\TableStatus;
 use App\Models\Order;
 use App\Models\Table;
@@ -76,7 +77,7 @@ class TableRepository implements TableRepositoryInterface
 
     public function hasOpenOrder(string $number): bool
     {
-        return Order::where('channel', 'mesa')
+        return Order::where('channel', OrderChannel::Mesa)
             ->where('table_number', $number)
             ->whereNotIn('status', ['Finalizado', 'Recusado'])
             ->exists();
