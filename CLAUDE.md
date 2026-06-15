@@ -6,6 +6,7 @@ Stack: Laravel 12 · PHP 8.4 (Docker) · PostgreSQL 16 · Redis 7 · Sanctum
 > Documentação completa: `DEVELOPMENT.md`
 > Specs de features: `docs/specs/`
 > Slash commands: `.claude/commands/`
+> Infraestrutura/produção: `docs/DEPLOYMENT.md`
 
 ---
 
@@ -194,6 +195,12 @@ Roles: `super_admin`, `saas_support` (plataforma, store_id null) · `store_owner
 | RBAC middlewares (CheckRole, CheckTenantRole) | ✅ |
 | Testes Feature: 19/19 verdes | ✅ |
 | Spec-Driven Development (SDD) setup | ✅ |
+| Deploy em produção (Vultr, Docker Compose) | ✅ |
+| Hardening de segurança (SSH, fail2ban, backups, monitoramento, rate limiting) | ✅ |
+| Domínio doqui.com.br registrado (DNS/HTTPS pendentes) | ⏳ |
+| Frontend migrado de Supabase para a API Laravel | ⏳ |
+
+> Detalhes de infra/produção e próximos passos: `docs/DEPLOYMENT.md`
 
 ---
 
